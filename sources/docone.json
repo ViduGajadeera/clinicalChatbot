@@ -1,0 +1,19 @@
+{
+  "scenario_id": "SC001",
+  "title": "Chest Pain Case",
+  "description": "A 55-year-old male presents with chest pain and sweating.",
+  "questions": [
+    {
+      "question_id": "Q1",
+      "question": "What is your first action?",
+      "expected_answer": "Assess vital signs",
+      "media": []
+    },
+    {
+      "question_id": "Q2",
+      "question": "What condition do you suspect?",
+      "expected_answer": "Myocardial infarction",
+      "media": []
+    }
+  ]
+}
