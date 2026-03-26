@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import chat, evaluation, scenario
@@ -19,3 +21,9 @@ app.include_router(scenario.router, prefix="/scenario")
 @app.get("/")
 def root():
     return {"message": "KIU AI Chatbot Running"}
+
+if __name__ == "__main__":
+    import uvicorn
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host=host, port=port)
