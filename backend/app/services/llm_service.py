@@ -2,10 +2,19 @@ from openai import APIError, OpenAI
 
 from app.config import GROQ_API_KEY, GROQ_BASE_URL, GROQ_MODEL
 
-client = OpenAI(
-    api_key=GROQ_API_KEY,
-    base_url=GROQ_BASE_URL,
-)
+_client: OpenAI | None = None
+
+
+def _get_client() -> OpenAI:
+    global _client
+    if _client is None:
+        # Lazy init so the web server can boot even if env vars
+        # are missing; we raise a user-friendly error on use instead.
+        _client = OpenAI(
+            api_key=GROQ_API_KEY,
+            base_url=GROQ_BASE_URL,
+        )
+    return _client
 
 
 def _create_chat_completion(messages, temperature: float):
@@ -13,6 +22,7 @@ def _create_chat_completion(messages, temperature: float):
         raise RuntimeError(
             "GROQ_API_KEY is not set. Add it to backend/.env (https://console.groq.com/keys)."
         )
+    client = _get_client()
     return client.chat.completions.create(
         model=GROQ_MODEL,
         messages=messages,
