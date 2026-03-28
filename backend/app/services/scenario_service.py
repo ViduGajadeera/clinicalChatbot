@@ -34,7 +34,15 @@ _EMBEDDED_SC001: dict = {
 
 def add_scenario(scenario: Scenario):
     scenarios_db[scenario.scenario_id] = scenario
-    store_scenario(scenario)
+    # Pinecone is optional for chat: /chat uses in-memory scenarios_db only.
+    # Vectors are for similarity search (store_scenario); failures should not block uploads.
+    try:
+        store_scenario(scenario)
+    except Exception as exc:
+        logger.warning(
+            "Pinecone upsert failed (scenario still saved in memory): %s",
+            exc,
+        )
     return {"message": "Scenario stored successfully", "scenario_id": scenario.scenario_id}
 
 
