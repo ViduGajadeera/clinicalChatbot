@@ -23,19 +23,21 @@ def get_scenario(scenario_id: str | None = None) -> Scenario | None:
 
 
 def _load_default_scenario() -> None:
-    repo_root = Path(__file__).resolve().parents[3]
-    default_file = repo_root / "sources" / "docone.json"
-
-    if not default_file.exists():
+    # backend/app/services -> parents[2] == backend root (works locally and in Docker
+    # where only `backend/` is copied — repo-level `sources/` is not on the image).
+    backend_root = Path(__file__).resolve().parents[2]
+    default_file = backend_root / "data" / "docone.json"
+    legacy_file = Path(__file__).resolve().parents[3] / "sources" / "docone.json"
+    for path in (default_file, legacy_file):
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            scenario = Scenario(**payload)
+        except Exception:
+            continue
+        scenarios_db.setdefault(scenario.scenario_id, scenario)
         return
-
-    try:
-        payload = json.loads(default_file.read_text(encoding="utf-8"))
-        scenario = Scenario(**payload)
-    except Exception:
-        return
-
-    scenarios_db.setdefault(scenario.scenario_id, scenario)
 
 
 _load_default_scenario()
