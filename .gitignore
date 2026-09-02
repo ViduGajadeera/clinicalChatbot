@@ -23,3 +23,9 @@ Thumbs.db
 # Build files
 dist/
 build/
+
+# Node modules
+node_modules/
+
+# SQLite Database
+*.db
