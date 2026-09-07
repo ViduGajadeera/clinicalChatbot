@@ -6,7 +6,8 @@ import { FiUploadCloud, FiTrash2, FiUsers, FiFileText, FiActivity, FiChevronRigh
 const API_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
 const LecturerDashboard = () => {
-  const { user } = useContext(AuthContext);
+  // user variable was assigned but never used
+  useContext(AuthContext);
   const [documents, setDocuments] = useState([]);
   const [students, setStudents] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
