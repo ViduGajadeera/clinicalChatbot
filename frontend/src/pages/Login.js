@@ -49,7 +49,7 @@ const Login = () => {
           </button>
         </form>
         <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <Link to="/register" style={{ color: 'var(--text-secondary)' }}>Don't have an account? <span style={{ color: 'var(--accent-color)' }}>Register</span></Link>
+           {/*<Link to="/register" style={{ color: 'var(--text-secondary)' }}>Don't have an account? <span style={{ color: 'var(--accent-color)' }}>Register</span></Link>*/}
         </div>
       </div>
     </div>
