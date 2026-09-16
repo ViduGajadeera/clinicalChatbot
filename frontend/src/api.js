@@ -26,26 +26,26 @@ export const login = (email, password) => {
 
 export const register = (userData) => axios.post(`${API}/auth/register`, userData);
 
-export const startAttempt = () => apiClient.post('/chat/start');
+export const startAttempt = (scenarioId) => apiClient.post('/chat/start', { scenario_id: scenarioId });
+export const getScenarios = () => apiClient.get('/scenario/');
 export const getChatHistory = (attemptId) => apiClient.get(`/chat/${attemptId}/history`);
 export const submitMessage = (attemptId, messageText) => 
   apiClient.post('/chat/message', { attempt_id: attemptId, message_text: messageText });
+export const evaluateAttempt = (attemptId) => apiClient.post(`/chat/${attemptId}/evaluate`);
 
 export const getStudentAttempts = () => apiClient.get('/student/attempts');
 export const getLecturerStudents = () => apiClient.get('/lecturer/students');
 export const getStudentProgress = (studentId) => apiClient.get(`/lecturer/students/${studentId}/progress`);
 export const getAttemptDetails = (attemptId) => apiClient.get(`/lecturer/attempts/${attemptId}`);
-
-export const uploadDocument = (file) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  return apiClient.post('/documents/upload', formData, {
-    headers: { "Content-Type": "multipart/form-data" }
-  });
+export const getKpis = () => apiClient.get('/lecturer/kpis');
+export const exportReports = (startDate, endDate) => {
+  let url = '/lecturer/reports/export?';
+  if (startDate) url += `start_date=${startDate}&`;
+  if (endDate) url += `end_date=${endDate}`;
+  return apiClient.get(url, { responseType: 'blob' });
 };
 
-export const getDocuments = () => apiClient.get('/documents/');
-export const deleteDocument = (id) => apiClient.delete(`/documents/${id}`);
+
 
 export const getProfile = () => apiClient.get('/auth/me');
 export const updateMyPassword = (oldPassword, newPassword) => 

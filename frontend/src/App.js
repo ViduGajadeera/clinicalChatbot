@@ -13,6 +13,8 @@ import Navbar from './components/Navbar';
 import './App.css';
 import './index.css';
 
+import Reports from './pages/Reports';
+
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useContext(AuthContext);
   
@@ -69,6 +71,12 @@ function App() {
           <Route path="/lecturer/dashboard" element={
             <ProtectedRoute allowedRoles={['lecturer']}>
               <LecturerDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/lecturer/reports" element={
+            <ProtectedRoute allowedRoles={['lecturer']}>
+              <Reports />
             </ProtectedRoute>
           } />
           

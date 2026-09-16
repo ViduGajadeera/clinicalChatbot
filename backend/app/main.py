@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routes import chat, scenario, auth, documents, lecturer, student
+from app.routes import chat, scenario, auth, lecturer, student
 from app.database import engine, Base
 from app.models import domain
 
@@ -23,7 +23,7 @@ os.makedirs("app/static/media", exist_ok=True)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(auth.router, prefix="/auth")
-app.include_router(documents.router, prefix="/documents")
+
 app.include_router(chat.router, prefix="/chat")
 app.include_router(lecturer.router, prefix="/lecturer")
 app.include_router(student.router, prefix="/student")

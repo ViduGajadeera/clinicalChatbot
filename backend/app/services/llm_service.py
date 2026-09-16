@@ -1,27 +1,26 @@
+import itertools
 from openai import APIError, OpenAI
 
-from app.config import GROQ_API_KEY, GROQ_BASE_URL, GROQ_MODEL
+from app.config import GROQ_API_KEYS, GROQ_BASE_URL, GROQ_MODEL
 
-_client: OpenAI | None = None
-
+_clients = []
+_client_cycle = None
 
 def _get_client() -> OpenAI:
-    global _client
-    if _client is None:
-        # Lazy init so the web server can boot even if env vars
-        # are missing; we raise a user-friendly error on use instead.
-        _client = OpenAI(
-            api_key=GROQ_API_KEY,
-            base_url=GROQ_BASE_URL,
-        )
-    return _client
-
-
-def _create_chat_completion(messages, temperature: float):
-    if not GROQ_API_KEY:
+    global _client_cycle
+    if not GROQ_API_KEYS:
         raise RuntimeError(
             "GROQ_API_KEY is not set. Add it to backend/.env (https://console.groq.com/keys)."
         )
+    
+    if not _clients:
+        for key in GROQ_API_KEYS:
+            _clients.append(OpenAI(api_key=key, base_url=GROQ_BASE_URL))
+        _client_cycle = itertools.cycle(_clients)
+        
+    return next(_client_cycle)
+
+def _create_chat_completion(messages, temperature: float):
     client = _get_client()
     return client.chat.completions.create(
         model=GROQ_MODEL,

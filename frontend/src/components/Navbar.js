@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { startAttempt } from '../api';
-import { FiLogOut, FiPlayCircle, FiUser, FiSettings } from 'react-icons/fi';
+import { FiLogOut, FiPlayCircle, FiUser, FiSettings, FiDownload } from 'react-icons/fi';
 import { MdSpaceDashboard } from 'react-icons/md';
 
 const Navbar = () => {
@@ -41,17 +41,30 @@ const Navbar = () => {
           <span style={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>K</span>
         </div>
         <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-          KIU <span style={{ color: 'var(--text-secondary)' }}>AI</span>
+          Clinical AI <span style={{ color: 'var(--text-secondary)' }}>Agent</span>
         </span>
       </div>
 
       <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-        <Link to="/" style={{ color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '500' }}>
+        <Link 
+          to={user.role === 'lecturer' ? "/lecturer/dashboard" : "/student/dashboard"} 
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '500' }}
+        >
           <MdSpaceDashboard /> Dashboard
         </Link>
         
         {user.role === 'lecturer' && (
-          <button 
+          <Link 
+            to="/lecturer/reports" 
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '500' }}
+          >
+            <FiDownload /> Reports
+          </Link>
+        )}
+        
+        {/* 
+        {user.role === 'lecturer' && (
+         <button 
             onClick={handleTestChatbot}
             style={{ 
               background: 'transparent', 
@@ -70,7 +83,8 @@ const Navbar = () => {
           >
             <FiPlayCircle /> Test Chatbot
           </button>
-        )}
+        )} 
+        */}
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>

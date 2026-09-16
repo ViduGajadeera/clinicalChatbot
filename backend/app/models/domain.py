@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text, Float, JSON
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text, Float, JSON, Boolean
 from sqlalchemy.orm import relationship
 import datetime
 import uuid
@@ -36,7 +36,17 @@ class Scenario(Base):
     scenario_id = Column(String(100), unique=True, index=True, nullable=False) # E.g. "SC001"
     document_id = Column(String(36), ForeignKey("documents.id"))
     title = Column(String(255), nullable=False)
-    description = Column(Text, nullable=False)
+    
+    patient_profile = Column(JSON, nullable=False)
+    presentation = Column(JSON, nullable=False)
+    hidden_history = Column(JSON, nullable=False)
+    vitals = Column(JSON, nullable=False)
+    diagnosis = Column(JSON, nullable=False)
+    available_investigations = Column(JSON, default=list)
+    available_examinations = Column(JSON, default=list)
+    expected_management = Column(JSON, default=list)
+    deterioration_rules = Column(JSON, default=list)
+    recovery_rules = Column(JSON, default=list)
     
     document = relationship("Document", back_populates="scenarios")
     questions = relationship("Question", back_populates="scenario", cascade="all, delete-orphan")
@@ -58,6 +68,9 @@ class Attempt(Base):
     student_id = Column(String(36), ForeignKey("users.id"))
     scenario_id = Column(String(36), ForeignKey("scenarios.id"), nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    is_completed = Column(Boolean, default=False)
+    ai_feedback = Column(Text, nullable=True)
+    current_patient_state = Column(JSON, nullable=True)
     
     student = relationship("User", back_populates="attempts")
     scenario = relationship("Scenario")
@@ -70,6 +83,7 @@ class ChatMessage(Base):
     sender = Column(String(50), nullable=False) # 'user' or 'bot'
     message_text = Column(Text, nullable=False)
     media_url = Column(String(255), nullable=True) # If bot sends an image
+    action_data = Column(JSON, nullable=True) # Stores structured clinical data
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     
     attempt = relationship("Attempt", back_populates="messages")
