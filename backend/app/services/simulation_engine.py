@@ -8,17 +8,22 @@ def classify_intent_and_extract_action(student_message: str) -> dict:
     Returns a dict with 'intent' and optionally 'target'.
     """
     system_prompt = '''You are a clinical intent classifier.
-Analyze the student's message and determine what they are doing.
+Analyze the student's message and determine what clinical action they are actively performing.
 Return ONLY a raw JSON object (no markdown) with this schema:
 {
   "intent": "question" | "examination" | "investigation" | "treatment" | "diagnosis" | "general",
   "target": "string" // specific body part, test, or treatment if applicable, otherwise null
 }
 
+CRITICAL RULES:
+- If the student is EXPLAINING, SUGGESTING, or DISCUSSING a treatment/procedure (e.g., "we need to do an amputation", "you will need surgery"), classify it as "general" or "question", NOT "treatment". 
+- ONLY classify as "treatment" if the student explicitly states they are ADMINISTERING or PERFORMING it right now (e.g., "I am starting an IV", "I am applying a bandage").
+
 Examples:
 "I want to check your abdomen" -> {"intent": "examination", "target": "abdominal"}
 "Order a CBC" -> {"intent": "investigation", "target": "CBC"}
-"Start IV fluids" -> {"intent": "treatment", "target": "IV fluids"}
+"I am starting IV fluids now" -> {"intent": "treatment", "target": "IV fluids"}
+"You will need to go to surgery" -> {"intent": "general", "target": null}
 "How long have you had this pain?" -> {"intent": "question", "target": null}
 "I think you have appendicitis" -> {"intent": "diagnosis", "target": "appendicitis"}
 '''
@@ -154,10 +159,12 @@ Recent treatment effects on your body: {recent_effect}
 
 RULES:
 1. Reveal information PROGRESSIVELY. Answer only what is asked naturally.
-2. Adopt your assigned personality and express your concerns/misconceptions if the topic arises.
-3. If the student explains a procedure or asks for consent, do NOT give consent immediately unless your specific concerns have been properly addressed.
+2. Adopt your assigned personality, but be flexible and cooperative.
+3. If the student explains a procedure, addresses your concerns, or reassures you, you MUST be convinced, agree, and give your consent. Do not be overly strict or stubborn. Once a reasonable explanation is given, accept it and move forward.
 4. If the student asks for medical advice or asks what to do, remind them that they are the nurse and you are relying on them.
-5. Keep responses short, natural, and conversational. Do not list things.
+5. Keep responses short, natural, and conversational. NEVER use bullet points or numbered lists.
+6. ASK ONLY ONE CONCERN OR QUESTION AT A TIME. Wait for the nurse to answer before asking the next one.
+7. CRITICAL: Carefully read the chat history. NEVER repeat a question or concern that the nurse has already addressed.
 """
 
     messages = [{"role": "system", "content": system_prompt}]

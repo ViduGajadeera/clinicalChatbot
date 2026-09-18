@@ -34,7 +34,6 @@ const LecturerDashboard = () => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentProgress, setStudentProgress] = useState([]);
-  const [selectedAttempt, setSelectedAttempt] = useState(null);
   const [studentFilter, setStudentFilter] = useState('');
   const [kpis, setKpis] = useState([]);
   
@@ -89,12 +88,10 @@ const LecturerDashboard = () => {
     const res = await getStudentProgress(studentId);
     setStudentProgress(res.data);
     setSelectedStudent(studentId);
-    setSelectedAttempt(null);
   };
 
-  const handleViewAttempt = async (attemptId) => {
-    const res = await getAttemptDetails(attemptId);
-    setSelectedAttempt(res.data);
+  const handleViewAttempt = (attemptId) => {
+    navigate(`/review/${attemptId}`);
   };
 
   const totalAttempts = students.reduce((sum, s) => sum + s.attempts_count, 0);
@@ -113,7 +110,7 @@ const LecturerDashboard = () => {
     }));
 
   return (
-    <div style={{ width: '100%', padding: '0 2rem 4rem 2rem' }} className="animate-fade-in">
+    <div style={{ width: '100%', paddingBottom: '4rem' }} className="animate-fade-in">
       
       {/* Top Controls Row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -172,7 +169,7 @@ const LecturerDashboard = () => {
       </div>
 
       <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Scenario Engagements</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         {kpis.map((kpi, idx) => (
           <div key={idx} className="neu-convex" style={{ padding: '1rem', textAlign: 'center' }}>
             <div style={{ color: 'var(--accent-color)', fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{kpi.count}</div>
@@ -207,7 +204,7 @@ const LecturerDashboard = () => {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '2rem', marginBottom: '3rem' }}>
+      <div className="responsive-grid responsive-grid-2-1" style={{ marginBottom: '3rem' }}>
         <section className="neu-convex" style={{ padding: '1.5rem', height: 'fit-content' }}>
           <h3 style={{ marginTop: 0, color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FiUsers /> Student Roster
@@ -317,60 +314,6 @@ const LecturerDashboard = () => {
                 </div>
               </div>
 
-              {/* Attempt Details */}
-              {selectedAttempt && (
-                <div className="neu-convex animate-fade-in" style={{ padding: '2rem' }}>
-                  <div style={{ display: 'flex', gap: '1.5rem' }}>
-                    <div style={{ flex: 1, padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', overflowY: 'auto', maxHeight: '600px' }}>
-                      <h4 style={{ marginTop: 0, color: 'var(--accent-color)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
-                        Source Context
-                      </h4>
-                      <div style={{ marginBottom: '1.5rem' }}>
-                        <strong style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>{selectedAttempt.source_context.title}</strong>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>{selectedAttempt.source_context.description}</p>
-                      </div>
-                    </div>
-
-                    <div style={{ flex: 1, padding: '1.5rem', background: 'rgba(0,0,0,0.1)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', overflowY: 'auto', maxHeight: '600px' }}>
-                      <h4 style={{ marginTop: 0, color: 'var(--text-primary)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
-                        Chat Transcript
-                      </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {selectedAttempt.transcript.map((msg, idx) => (
-                          <div key={idx} style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '90%' }}>
-                            {msg.sender === 'user' ? (
-                              <div style={{ background: 'var(--accent-color)', color: 'white', padding: '0.8rem 1rem', borderRadius: '16px 16px 4px 16px', fontSize: '0.9rem' }}>
-                                {msg.text}
-                              </div>
-                            ) : (
-                              <div style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', padding: '0.8rem 1rem', borderRadius: '16px 16px 16px 4px', fontSize: '0.9rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                {msg.text}
-                                {msg.media_url && (
-                                  <img src={`${API_URL}${msg.media_url}`} alt="Attached media" style={{ maxWidth: '100%', marginTop: '0.5rem', borderRadius: '4px' }} />
-                                )}
-                              </div>
-                            )}
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.25rem', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
-                              {formatSriLankanTime(msg.timestamp)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {selectedAttempt.ai_feedback && (
-                    <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <h4 style={{ marginTop: 0, color: 'var(--accent-color)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
-                        Evaluation Report
-                      </h4>
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                        <ReactMarkdown>{selectedAttempt.ai_feedback}</ReactMarkdown>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           ) : (
             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.1)', borderRadius: '12px', minHeight: '300px' }}>

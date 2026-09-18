@@ -4,3 +4,8 @@ pinecone
 python-dotenv
 openai
 sentence-transformers
+bcrypt
+python-jose[cryptography]
+SQLAlchemy
+python-multipart
+psycopg2-binary

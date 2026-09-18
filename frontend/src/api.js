@@ -32,6 +32,7 @@ export const getChatHistory = (attemptId) => apiClient.get(`/chat/${attemptId}/h
 export const submitMessage = (attemptId, messageText) => 
   apiClient.post('/chat/message', { attempt_id: attemptId, message_text: messageText });
 export const evaluateAttempt = (attemptId) => apiClient.post(`/chat/${attemptId}/evaluate`);
+export const getAttemptReview = (attemptId) => apiClient.get(`/chat/${attemptId}/review`);
 
 export const getStudentAttempts = () => apiClient.get('/student/attempts');
 export const getLecturerStudents = () => apiClient.get('/lecturer/students');

@@ -60,11 +60,11 @@ function ChatSession() {
       
       if (res.data.is_completed) {
         setIsCompleted(true);
-        if (res.data.ai_feedback) {
-          setFeedback(res.data.ai_feedback);
-        } else {
-          fetchFeedback();
+        if (!res.data.ai_feedback) {
+          await fetchFeedback();
         }
+        navigate(`/review/${attemptId}`);
+        return;
       }
     } catch (err) {
       console.error(err);
@@ -86,6 +86,7 @@ function ChatSession() {
   const handleSessionComplete = async () => {
     setIsCompleted(true);
     await fetchFeedback();
+    navigate(`/review/${attemptId}`);
   };
   
   const handleManualEnd = () => {
@@ -185,8 +186,9 @@ function ChatSession() {
       <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {messages.map((msg, idx) => (
           <div key={idx} style={{ 
-            alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
-            maxWidth: "80%"
+            alignSelf: msg.sender === "user" ? "flex-end" : msg.sender === "system" ? "center" : "flex-start",
+            maxWidth: msg.sender === "system" ? "95%" : "80%",
+            width: msg.sender === "system" ? "100%" : "auto"
           }}>
             {msg.sender === "user" ? (
               <div style={{ 
@@ -197,6 +199,18 @@ function ChatSession() {
                 boxShadow: 'var(--accent-shadow)'
               }}>
                 <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.text}</p>
+              </div>
+            ) : msg.sender === "system" ? (
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                padding: '1.2rem',
+                borderRadius: '12px',
+                margin: '1rem 0',
+                color: 'var(--text-secondary)',
+                fontSize: '0.95rem'
+              }}>
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
               </div>
             ) : (
               <div className="neu-convex" style={{ 
@@ -249,24 +263,11 @@ function ChatSession() {
       </div>
 
       {isCompleted ? (
-        <div className="neu-convex animate-fade-in" style={{ margin: '1rem', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid var(--accent-color)' }}>
-          <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <FiCheckCircle color="var(--accent-color)" /> Assessment Complete
-          </h4>
-          {feedback ? (
-            <div>
-              <div style={{ margin: '0 0 1.5rem 0', color: 'var(--text-secondary)', lineHeight: '1.6', fontSize: '0.95rem' }}>
-                <ReactMarkdown>{feedback}</ReactMarkdown>
-              </div>
-              <button onClick={() => navigate('/student/dashboard')} className="neu-button-accent">
-                Return to Dashboard
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)' }}>
-              Generating feedback...
-            </div>
-          )}
+        <div className="neu-convex animate-fade-in" style={{ margin: '1rem', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid var(--accent-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)' }}>
+            <div className="typing-dot" style={{ background: 'var(--accent-color)', width: '12px', height: '12px' }}></div>
+            Generating detailed assessment report...
+          </div>
         </div>
       ) : (
         <div style={{ padding: '1rem' }}>

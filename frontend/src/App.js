@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
 import LecturerDashboard from './pages/LecturerDashboard';
 import ChatSession from './pages/ChatSession';
+import AttemptReview from './pages/AttemptReview';
 import Settings from './pages/Settings';
 import Navbar from './components/Navbar';
 
@@ -25,7 +26,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return (
     <>
       <Navbar />
-      <div style={{ padding: '0 2rem' }}>
+      <div className="page-container">
         {children}
       </div>
     </>
@@ -59,6 +60,12 @@ function App() {
           <Route path="/chat/:attemptId" element={
             <ProtectedRoute allowedRoles={['student', 'lecturer']}>
               <ChatSession />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/review/:attemptId" element={
+            <ProtectedRoute allowedRoles={['student', 'lecturer']}>
+              <AttemptReview />
             </ProtectedRoute>
           } />
 

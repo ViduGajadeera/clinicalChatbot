@@ -54,8 +54,24 @@ def start_attempt(data: StartInput, current_user: User = Depends(get_current_use
     db.commit()
     db.refresh(attempt)
     
-    # Send initial greeting
-    bot_text = f"Nurse, I'm glad you're here. {scenario.presentation.get('chief_complaint', 'I need some help')}."
+    # Send scenario entrance message
+    p_name = scenario.patient_profile.get('name', 'the patient')
+    p_age = scenario.patient_profile.get('age', '')
+    p_complaint = scenario.presentation.get('chief_complaint', '')
+    
+    age_str = f", {p_age} years old" if p_age else ""
+    
+    system_text = f"**Scenario Entrance**\nYou are a nurse. Your patient is {p_name}{age_str}. Medical background: {p_complaint} You are required to obtain informed consent from the patient."
+    
+    sys_msg = ChatMessage(
+        attempt_id=attempt.id,
+        sender="system",
+        message_text=system_text
+    )
+    db.add(sys_msg)
+    
+    # Send initial greeting from the patient
+    bot_text = "Hello Nurse. I was told you needed to speak with me."
     
     bot_msg = ChatMessage(
         attempt_id=attempt.id,
@@ -341,3 +357,44 @@ Return ONLY a JSON object exactly matching this schema:
     db.commit()
     
     return {"feedback": feedback_md}
+
+@router.get("/{attempt_id}/review")
+def get_attempt_review(attempt_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    attempt = db.query(Attempt).filter(Attempt.id == attempt_id).first()
+    if not attempt:
+        raise HTTPException(status_code=404, detail="Attempt not found")
+        
+    if current_user.role != "lecturer" and attempt.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this attempt")
+        
+    scenario = attempt.scenario
+    
+    if scenario:
+        from app.models.domain import Question
+        questions = db.query(Question).filter(Question.scenario_id == scenario.id).all()
+        description = scenario.presentation.get('chief_complaint', 'Clinical Scenario') if isinstance(scenario.presentation, dict) else 'Clinical Scenario'
+        
+        source_context = {
+            "title": scenario.title,
+            "description": description,
+            "questions": [{"text": q.question_text, "expected": q.expected_answer, "media": q.media} for q in questions]
+        }
+    else:
+        source_context = {
+            "title": "Unknown Scenario",
+            "description": "This scenario has been removed or is unavailable.",
+            "questions": []
+        }
+    
+    messages = db.query(ChatMessage).filter(ChatMessage.attempt_id == attempt.id).order_by(ChatMessage.timestamp.asc()).all()
+    transcript = [{"sender": msg.sender, "text": msg.message_text, "media_url": msg.media_url, "timestamp": msg.timestamp, "action_data": msg.action_data} for msg in messages]
+        
+    return {
+        "attempt_id": attempt.id,
+        "student": f"{attempt.student.first_name} {attempt.student.last_name}",
+        "timestamp": attempt.timestamp,
+        "source_context": source_context,
+        "transcript": transcript,
+        "ai_feedback": attempt.ai_feedback,
+        "is_completed": attempt.is_completed
+    }

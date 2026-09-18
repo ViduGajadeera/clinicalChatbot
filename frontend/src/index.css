@@ -187,3 +187,34 @@ a:hover {
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
+/* Responsive Utilities */
+.page-container {
+  padding: 0 1rem;
+}
+@media (min-width: 768px) {
+  .page-container {
+    padding: 0 2rem;
+  }
+}
+
+.responsive-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+.responsive-grid > * {
+  flex: 1 1 300px;
+}
+.responsive-grid-2-1 > *:first-child {
+  flex: 1 1 300px;
+}
+.responsive-grid-2-1 > *:last-child {
+  flex: 2 1 400px;
+}
+
+@media (max-width: 768px) {
+  .neu-convex {
+    padding: 1.5rem !important;
+  }
+}
+

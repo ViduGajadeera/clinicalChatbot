@@ -82,13 +82,13 @@ const StudentDashboard = () => {
     }));
 
   return (
-    <div style={{ width: '100%', padding: '0 2rem 4rem 2rem' }} className="animate-fade-in">
+    <div style={{ width: '100%', paddingBottom: '4rem' }} className="animate-fade-in">
       
       {/* Hero Section */}
       <div className="neu-convex" style={{ padding: '3rem', marginBottom: '3rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'linear-gradient(145deg, var(--bg-color), rgba(255,82,82,0.05))' }}>
         <div>
-          <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '2.5rem' }}>Welcome back, <span style={{ color: 'var(--accent-color)' }}>{user?.email?.split('@')[0]}</span></h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', margin: 0 }}>Select a clinical scenario below to start a 20-minute role-play assessment.</p>
+          <h1 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: 'clamp(1.5rem, 6vw, 2.5rem)', wordBreak: 'break-word' }}>Welcome back, <span style={{ color: 'var(--accent-color)' }}>{user?.email?.split('@')[0]}</span></h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.9rem, 3vw, 1.1rem)', margin: 0 }}>Select a clinical scenario below to start a 20-minute role-play assessment.</p>
         </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
@@ -109,7 +109,7 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+      <div className="responsive-grid responsive-grid-2-1">
         {/* Left Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div className="neu-convex" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -134,7 +134,7 @@ const StudentDashboard = () => {
                   {attempts.slice().reverse().map(attempt => (
                     <li 
                       key={attempt.attempt_id} 
-                      onClick={() => navigate(`/chat/${attempt.attempt_id}`)}
+                      onClick={() => navigate(attempt.score !== null ? `/review/${attempt.attempt_id}` : `/chat/${attempt.attempt_id}`)}
                       style={{ 
                         padding: '1.5rem', 
                         background: 'rgba(255,255,255,0.02)', 
